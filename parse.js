@@ -1,9 +1,9 @@
-// A fast, dependency-free reimplementation of marked 18.1.3's default
-// (GFM) rendering: parse(markdown) returns exactly the HTML marked
-// produces, byte for byte. Two passes: an index-based block scanner with
-// sticky regexes (no repeated slicing of the remaining input), then a
-// hand-rolled inline scanner that renders straight to a string instead
-// of building token objects. No state is kept between calls.
+// A fast, dependency-free reimplementation of marked 18.1.3 (default
+// options, GFM on): parse(markdown) returns exactly the HTML marked
+// produces, byte for byte. Two passes: an index-based block scanner
+// using sticky regexes (the input is never re-sliced from the front),
+// then a hand-rolled inline scanner that renders straight to a string
+// instead of building token objects. No state survives between calls.
 
 'use strict';
 
@@ -305,6 +305,7 @@ const reNotSpaceStart = /^\S*/;
 const reEndingNewline = /\n$/;
 const reSpaceLine = /^ +$/gm;
 const reMultipleSpace = /\s+/g;
+const reLheadingTest = rx(LHEADING_SRC, '');
 
 // Per-indent block-start patterns inside list items (cached by indent).
 // The indent is clamped to 0..3 (the parameter is really n-1, capped).
@@ -1543,8 +1544,6 @@ function blockLexInto(src, links, lexState, nested, nodes) {
 }
 
 // --------------------------------------------------------------- rendering
-
-const reLheadingTest = rx(LHEADING_SRC, '');
 
 function checkboxHtml(checked) {
   return '<input ' + (checked ? 'checked="" ' : '') + 'disabled="" type="checkbox"> ';

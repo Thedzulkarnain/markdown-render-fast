@@ -1,8 +1,9 @@
 // Entrypoint for the markdown-render-speed entry.
-// Runs as `node /bot/main.ts` on Node 22. It reads the case list from
-// /input/cases.json (MAKEFUN_INPUT_DIR outside a container), renders each
-// case on its own with parse() from parse.js, and writes the HTML strings
-// in order to /output/html.json (MAKEFUN_OUTPUT_DIR outside a container).
+// Runs as `node /bot/main.ts` on Node 22. It reads every case from
+// /input/cases.json (MAKEFUN_INPUT_DIR outside a container), renders
+// each case on its own with parse() from parse.js, and writes the
+// resulting HTML strings, in order, to /output/html.json
+// (MAKEFUN_OUTPUT_DIR outside a container).
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -11,11 +12,10 @@ import { parse } from './parse.js';
 const inputDir = process.env.MAKEFUN_INPUT_DIR ?? '/input';
 const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-const raw = readFileSync(join(inputDir, 'cases.json'), 'utf8');
-const cases = JSON.parse(raw) as { id: string; markdown: string }[];
-const out: string[] = new Array(cases.length);
+const cases = JSON.parse(readFileSync(join(inputDir, 'cases.json'), 'utf8')) as { id: string; markdown: string }[];
+const html: string[] = new Array(cases.length);
 for (let i = 0; i < cases.length; i++) {
-  out[i] = parse(cases[i].markdown);
+  html[i] = parse(cases[i].markdown);
 }
 mkdirSync(outputDir, { recursive: true });
-writeFileSync(join(outputDir, 'html.json'), JSON.stringify(out));
+writeFileSync(join(outputDir, 'html.json'), JSON.stringify(html));
